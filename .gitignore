@@ -1,0 +1,12 @@
+*.bam
+*.bam.bai
+*.fa
+*.fa.fai
+*.sam
+
+# BWA
+*.fa.amb
+*.fa.ann
+*.fa.bwt
+*.fa.pac
+*.fa.sa
