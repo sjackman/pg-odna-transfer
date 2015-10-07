@@ -1,4 +1,4 @@
-Analysis of organellar DNA transfer in white spruce (*Picea glauca*)
+Analyze organellar DNA transfer in white spruce (*Picea glauca*)
 ================================================================================
 
 White spruce genotype PG29
