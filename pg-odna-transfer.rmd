@@ -1,0 +1,71 @@
+---
+title: Analyze organellar DNA transfer in white spruce (Picea glauca)
+author: Shaun Jackman
+---
+
+```{r load-libraries}
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(readr)
+library(scales)
+```
+
+```{r read-data}
+nu_cp <- read_tsv("pg29-scaffolds.pg29-plastid.sort.paf.tsv")
+nu_mt <- read_tsv("pg29-scaffolds.pg29mt-scaffolds.sort.paf.tsv")
+```
+
+```{r munge-data}
+nu_cp <- nu_cp %>% mutate(qalen = qend - qstart, talen = tend - tstart)
+nu_mt <- nu_mt %>% mutate(qalen = qend - qstart, talen = tend - tstart)
+
+nu_cp_divergence = nu_cp %>% filter(divergence > 0) %$% weighted.mean(divergence, qalen)
+nu_mt_divergence = nu_mt %>% filter(divergence > 0) %$% weighted.mean(divergence, qalen)
+
+nu_cp_divergence
+nu_mt_divergence
+```
+
+# Nuclear-plastid query-alignment-length vs divergence
+```{r plot-nu-cp-point}
+ggplot(nu_cp) +
+	aes(x = divergence, y = qalen) +
+	geom_point() +
+	scale_x_continuous(breaks = pretty_breaks(10))
+```
+
+# Nuclear-plastid divergence histogram
+```{r plot-nu-cp-divergence-hist}
+ggplot(nu_cp) +
+	aes(x = divergence, weight = qalen) +
+	geom_histogram(binwidth = 0.005) +
+	geom_vline(x = nu_cp_divergence) +
+	scale_x_continuous(limits = c(0, NA), breaks = pretty_breaks(10))
+```
+
+# Nuclear-mitochondrion query-alignment-length vs divergence
+```{r plot-nu-mt}
+ggplot(nu_mt) +
+	aes(x = divergence, y = qalen) +
+	geom_point() +
+	scale_x_continuous(breaks = pretty_breaks(10))
+```
+
+# Nuclear-mitochondrion divergence histogram (log)
+```{r plot-nu-mt-divergence-hist-log}
+ggplot(nu_mt) +
+	aes(x = 0.0001 + divergence, weight = qalen) +
+	geom_histogram(binwidth = 0.1) +
+	geom_vline(x = nu_mt_divergence) +
+	scale_x_log10(breaks = log_breaks(10))
+```
+
+# Nuclear-mitochondrion divergence histogram (linear)
+```{r plot-nu-mt-divergence-hist}
+ggplot(nu_mt) +
+	aes(x = divergence, weight = qalen) +
+	geom_histogram(binwidth = 0.01) +
+	geom_vline(x = nu_mt_divergence) +
+	scale_x_continuous(breaks = pretty_breaks(10))
+```

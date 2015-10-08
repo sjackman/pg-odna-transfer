@@ -2,6 +2,8 @@
 *.bam.bai
 *.fa
 *.fa.fai
+*.gff
+*.html
 *.sam
 
 # BWA
@@ -14,3 +16,4 @@
 # htsbox
 *.paf
 *.paf.tsv
+.Rproj.user

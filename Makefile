@@ -22,7 +22,8 @@ all: \
 	pg29mt-scaffolds.pg29-plastid.sort.paf.tsv \
 	pg29mt-scaffolds.pg29-scaffolds.sort.paf.tsv \
 	pg29-plastid.pg29-scaffolds.swap.sort.paf.tsv \
-	pg29mt-scaffolds.pg29-scaffolds.swap.sort.paf.tsv
+	pg29mt-scaffolds.pg29-scaffolds.swap.sort.paf.tsv \
+	pg-odna-transfer.html
 
 .PHONY: all
 .DELETE_ON_ERROR:
@@ -76,3 +77,10 @@ pg29.swap.identity.tsv: \
 %.paf.tsv: %.paf
 	(printf "qname\tqlength\tqstart\tqend\tstrand\ttname\ttlength\ttstart\ttend\tdivergence\tmapq\tattributes\n"; \
 		awk 'NF == 12' $<) >$@
+
+# Render RMarkdown to HTML
+%.html: %.rmd
+	Rscript -e 'rmarkdown::render("$<")'
+
+# Dependencies
+pg-odna-transfer.html: pg29-scaffolds.pg29-plastid.sort.paf.tsv pg29-scaffolds.pg29mt-scaffolds.sort.paf.tsv
