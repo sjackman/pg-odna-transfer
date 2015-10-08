@@ -10,3 +10,7 @@
 *.fa.bwt
 *.fa.pac
 *.fa.sa
+
+# htsbox
+*.paf
+*.paf.tsv

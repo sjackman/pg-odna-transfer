@@ -14,7 +14,15 @@ all: \
 	pg29-plastid.pg29-scaffolds.swap.sort.bam.bai \
 	pg29mt-scaffolds.pg29-scaffolds.swap.sort.bam.bai \
 	pg29.identity.tsv \
-	pg29.swap.identity.tsv
+	pg29.swap.identity.tsv \
+	pg29-plastid.pg29-scaffolds.sort.paf.tsv \
+	pg29-plastid.pg29mt-scaffolds.sort.paf.tsv \
+	pg29-scaffolds.pg29-plastid.sort.paf.tsv \
+	pg29-scaffolds.pg29mt-scaffolds.sort.paf.tsv \
+	pg29mt-scaffolds.pg29-plastid.sort.paf.tsv \
+	pg29mt-scaffolds.pg29-scaffolds.sort.paf.tsv \
+	pg29-plastid.pg29-scaffolds.swap.sort.paf.tsv \
+	pg29mt-scaffolds.pg29-scaffolds.swap.sort.paf.tsv
 
 .PHONY: all
 .DELETE_ON_ERROR:
@@ -59,3 +67,12 @@ pg29.swap.identity.tsv: \
 		pg29-plastid.pg29-scaffolds.swap.sort.bam \
 		pg29mt-scaffolds.pg29-scaffolds.swap.sort.bam
 	samskrit-identity $^ >$@
+
+# Convert BAM format to pairwise-alignment-format (PAF) using htsbox
+%.paf: %.bam
+	htsbox samview -p $< >$@
+
+# Convert PAF format to TSV format
+%.paf.tsv: %.paf
+	(printf "qname\tqlength\tqstart\tqend\tstrand\ttname\ttlength\ttstart\ttend\tdivergence\tmapq\tattributes\n"; \
+		awk 'NF == 12' $<) >$@
