@@ -6,25 +6,39 @@ author: Shaun Jackman
 ```{r load-libraries}
 library(dplyr)
 library(ggplot2)
+library(knitr)
 library(magrittr)
 library(readr)
 library(scales)
 ```
 
+# Read data
 ```{r read-data}
 nu_cp <- read_tsv("pg29-scaffolds.pg29-plastid.sort.paf.tsv")
 nu_mt <- read_tsv("pg29-scaffolds.pg29mt-scaffolds.sort.paf.tsv")
+genome_sizes <- data_frame(Organelle = c("cp", "mt"), GenomeSize = c(123266, 5931259))
 ```
 
+# Munge data
 ```{r munge-data}
 nu_cp <- nu_cp %>% mutate(qalen = qend - qstart, talen = tend - tstart)
 nu_mt <- nu_mt %>% mutate(qalen = qend - qstart, talen = tend - tstart)
+```
 
-nu_cp_divergence = nu_cp %>% filter(divergence > 0) %$% weighted.mean(divergence, qalen)
-nu_mt_divergence = nu_mt %>% filter(divergence > 0) %$% weighted.mean(divergence, qalen)
-
-nu_cp_divergence
-nu_mt_divergence
+# Summarize data
+```{r summarize-data}
+data <- bind_rows(
+	nu_cp %>% mutate(Organelle = "cp"),
+	nu_mt %>% mutate(Organelle = "mt"))
+summary <- data %>%
+	filter(divergence > 0) %>%
+	group_by(Organelle) %>%
+	summarize(Segments = n(), Bases = sum(qalen), Divergence = weighted.mean(divergence, qalen)) %>%
+	left_join(genome_sizes, by = "Organelle") %>%
+	select(Organelle, GenomeSize, everything())
+nu_cp_divergence <- summary %>% filter(Organelle == "cp") %$% Divergence
+nu_mt_divergence <- summary %>% filter(Organelle == "mt") %$% Divergence
+kable(summary)
 ```
 
 # Nuclear-plastid query-alignment-length vs divergence
