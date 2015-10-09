@@ -49,6 +49,10 @@ pg29mt-scaffolds.%.sam: pg29mt-scaffolds.fa %.fa
 %.sort.bam: %.sam
 	$(samtools) view -Su $< |$(samtools) sort - $*.sort
 
+# Remove perfectly identical alignments
+%.imperfect.sort.bam: %.sort.bam
+	samtools view -hF4 $< |grep -v 'NM:i:0' |samtools view -bo $@ -
+
 # Index a BAM file
 %.bam.bai: %.bam
 	samtools index $<
