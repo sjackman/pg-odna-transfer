@@ -41,6 +41,32 @@ nu_mt_divergence <- summary %>% filter(Organelle == "mt") %$% Divergence
 kable(summary)
 ```
 
+# Count covered bases
+```{r count-covered-bases}
+vseq <- Vectorize(seq.default, vectorize.args = c("from", "to"))
+
+filter_divergence_and_length <- function(data, alen_threshold)
+	data %>% filter(divergence > 0 & qalen >= alen_threshold & talen >= alen_threshold)
+
+count_aligned_bases <- function(data)
+	c(nrow(data),
+		data %$% vseq(qname * 10000000 + qstart, qname * 10000000 + qend - 1) %>% unlist %>% unique %>% length)
+
+data %>% filter(Organelle == "cp") %>% filter_divergence_and_length(1) %>% count_aligned_bases()
+data %>% filter(Organelle == "cp") %>% filter_divergence_and_length(500) %>% count_aligned_bases()
+data %>% filter(Organelle == "mt") %>% filter_divergence_and_length(1) %>% count_aligned_bases()
+data %>% filter(Organelle == "mt") %>% filter_divergence_and_length(500) %>% count_aligned_bases()
+
+data %>% filter_divergence_and_length(500) %>%
+	group_by(Organelle) %>%
+	summarize(Segments = n(), Bases = sum(qalen),
+		Min_divergence = min(divergence),
+		Mean_divergence = weighted.mean(divergence, qalen),
+		Max_divergence = max(divergence)) %>%
+	left_join(genome_sizes, by = "Organelle") %>%
+	select(Organelle, GenomeSize, everything())
+```
+
 # Nuclear-plastid query-alignment-length vs divergence
 ```{r plot-nu-cp-point}
 ggplot(nu_cp) +
